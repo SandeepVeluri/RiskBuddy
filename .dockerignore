@@ -1,0 +1,15 @@
+frontend/node_modules
+frontend/dist
+frontend/.vite
+
+**/__pycache__
+**/*.pyc
+.venv
+venv
+
+.git
+.gitignore
+*.md
+*.py.bak
+MASTER_BRIEF.md
+"scheme interactive risk chart.py"
