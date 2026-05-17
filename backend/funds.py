@@ -1,6 +1,6 @@
 MOCK_PORTFOLIO = [
     {"scheme_code": "120503", "name": "Axis Small Cap Fund", "weight": 0.60},
-    {"scheme_code": "101385", "name": "HDFC Corporate Bond Fund", "weight": 0.25},
+    {"scheme_code": "100172", "name": "Quant Dynamic Bond Fund", "weight": 0.25},
     {"scheme_code": "120594", "name": "ICICI Pru Balanced Advantage Fund", "weight": 0.15},
 ]
 
