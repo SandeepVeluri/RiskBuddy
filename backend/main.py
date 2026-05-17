@@ -6,7 +6,7 @@ from fastapi.staticfiles import StaticFiles
 
 from .funds import MOCK_PORTFOLIO, get_fund
 from .mfapi import fetch_nav_history
-from .simulation import ORDER, simulate_single_fund
+from .simulation import ORDER, simulate_portfolio, simulate_single_fund
 
 app = FastAPI(title="RiskBuddy API")
 
@@ -27,6 +27,31 @@ def health():
 @app.get("/api/funds")
 def list_funds():
     return {"funds": MOCK_PORTFOLIO, "holding_periods": ORDER}
+
+
+@app.get("/api/simulate/portfolio")
+def simulate_portfolio_endpoint():
+    try:
+        funds_data = [
+            {
+                "df": fetch_nav_history(f["scheme_code"]),
+                "code": f["scheme_code"],
+                "weight": f["weight"],
+            }
+            for f in MOCK_PORTFOLIO
+        ]
+    except Exception as e:
+        raise HTTPException(status_code=502, detail=f"MFapi fetch failed: {e}")
+
+    records, insufficient = simulate_portfolio(funds_data)
+    mean_cagr = sum(r["cagr"] for r in records) / len(records) if records else 0.0
+    return {
+        "records": records,
+        "mean_cagr": round(mean_cagr, 4),
+        "holding_periods": ORDER,
+        "insufficient_funds": insufficient,
+        "portfolio": MOCK_PORTFOLIO,
+    }
 
 
 @app.get("/api/simulate/{scheme_code}")

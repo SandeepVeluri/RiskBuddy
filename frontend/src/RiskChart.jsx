@@ -2,7 +2,7 @@ import Plot from 'react-plotly.js'
 
 const ORDER = ['1M', '3M', '6M', '1Y', '2Y', '3Y', '4Y', '5Y']
 
-export default function RiskChart({ records, meanCagr, fundName }) {
+export default function RiskChart({ records, meanCagr, fundName, selectedPeriod, insufficientFunds = {} }) {
   if (!records || records.length === 0) {
     return <div className="text-gray-500">No simulation data.</div>
   }
@@ -105,6 +105,36 @@ export default function RiskChart({ records, meanCagr, fundName }) {
     template: 'plotly_white',
   }
 
+  // Per-period stats panel (shown when holding period slider is active)
+  let periodStats = null
+  if (selectedPeriod) {
+    const pr = records.filter((r) => r.holding_period === selectedPeriod)
+    if (pr.length > 0) {
+      const posCount = pr.filter((r) => r.cagr >= 0).length
+      const negCount2 = pr.filter((r) => r.cagr < 0).length
+      const meanP = pr.reduce((s, r) => s + r.cagr, 0) / pr.length
+      const posPct = ((posCount / pr.length) * 100).toFixed(0)
+      const missing = insufficientFunds[selectedPeriod] || []
+
+      periodStats = (
+        <div className="mt-4 p-3 bg-gray-50 rounded border border-gray-100">
+          <p className="text-sm font-medium text-gray-800">
+            At {selectedPeriod}:{' '}
+            <span className="text-green-700">{posPct}% of entry points returned positive</span>
+          </p>
+          <p className="text-sm text-gray-600 mt-0.5">
+            {pr.length} entry points &middot; {negCount2} negative ({((negCount2 / pr.length) * 100).toFixed(0)}%) &middot; mean CAGR {meanP.toFixed(2)}%
+          </p>
+          {missing.length > 0 && (
+            <p className="text-xs text-amber-700 mt-1">
+              Some funds had insufficient history for this period — data points may be fewer.
+            </p>
+          )}
+        </div>
+      )
+    }
+  }
+
   return (
     <div>
       <Plot
@@ -118,6 +148,7 @@ export default function RiskChart({ records, meanCagr, fundName }) {
         {records.length} historical entry points simulated. {negCount} ({negPct}%) ended in
         negative CAGR.
       </p>
+      {periodStats}
     </div>
   )
 }

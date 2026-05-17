@@ -12,3 +12,12 @@ export async function simulateFund(schemeCode) {
   }
   return r.json()
 }
+
+export async function simulatePortfolio() {
+  const r = await fetch('/api/simulate/portfolio')
+  if (!r.ok) {
+    const text = await r.text()
+    throw new Error(`Portfolio simulation failed (${r.status}): ${text}`)
+  }
+  return r.json()
+}
